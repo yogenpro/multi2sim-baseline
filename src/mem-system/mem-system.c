@@ -22,6 +22,7 @@
 #include <lib/mhandle/mhandle.h>
 #include <lib/util/debug.h>
 #include <lib/util/file.h>
+#include <lib/util/linked-list.h>
 #include <lib/util/list.h>
 #include <lib/util/string.h>
 #include <network/network.h>
@@ -370,7 +371,7 @@ void mem_system_dump_report(void)
             struct dir_entry_t *dir_entry;
             struct mod_t *high_mod;
             unsigned int addr;
-            int high_set, high_way, high_state;
+            int high_state;
             int high_find_dirty;
 
             for (i_set = 0; i_set < cache->num_sets; i_set++)
@@ -396,12 +397,12 @@ void mem_system_dump_report(void)
                                 if (DIR_ENTRY_VALID_OWNER(dir_entry))
                                 {
                                     /* Get upper level cache module contains owner block. */
-                                    linked_list_goto(mod->high_mod_list, i_sharer);
+                                    linked_list_goto(mod->high_mod_list, dir_entry->owner);
                                     high_mod = linked_list_get(mod->high_mod_list);
                                     addr = cache->sets[i_set].blocks[i_way].tag << cache->log_block_size;
                                     /* Find the block from cache. */
-                                    cache_find_block(high_mod->cache, addr, &high_set, &high_way, &high_state);
-                                    high_block_state = (enum cache_block_state_t)high_state;
+                                    cache_find_block(high_mod->cache, addr, NULL, NULL, &high_state);
+                                    high_block_state = high_state;
                                     /* If dirty */
                                     if (high_block_state == cache_block_modified || high_block_state == cache_block_noncoherent)
                                     {
@@ -414,12 +415,12 @@ void mem_system_dump_report(void)
                                     {
                                         if (dir_entry_is_sharer(mod->dir, i_set, i_way, z, i_sharer))
                                         {
-                                            /* Same as ablve... */
+                                            /* Same as above... */
                                             linked_list_goto(mod->high_mod_list, i_sharer);
                                             high_mod = linked_list_get(mod->high_mod_list);
                                             addr = cache->sets[i_set].blocks[i_way].tag << cache->log_block_size;
-                                            cache_find_block(high_mod->cache, addr, &high_set, &high_way, &high_state);
-                                            high_block_state = (enum cache_block_state_t)high_state;
+                                            cache_find_block(high_mod->cache, addr, NULL, NULL, &high_state);
+                                            high_block_state = high_state;
                                             if (high_block_state == cache_block_modified || high_block_state == cache_block_noncoherent)
                                             {
                                                 high_find_dirty = 1;
