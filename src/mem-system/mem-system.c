@@ -28,6 +28,7 @@
 
 #include "cache.h"
 #include "config.h"
+#include "directory.h"
 #include "local-mem-protocol.h"
 #include "mem-system.h"
 #include "module.h"
@@ -113,7 +114,7 @@ void mem_system_init(void)
 	if (mem_config_file_name && *mem_config_file_name && !count)
 		fatal("memory configuration file given, but no timing simulation.\n%s",
 				mem_err_timing);
-	
+
 	/* Create trace category. This needs to be done before reading the
 	 * memory configuration file with 'mem_config_read', since the latter
 	 * function generates the trace headers. */
@@ -158,7 +159,7 @@ void mem_system_init(void)
 			mem_domain_index, "mod_nmoesi_store_unlock");
 	EV_MOD_NMOESI_STORE_FINISH = esim_register_event_with_name(mod_handler_nmoesi_store,
 			mem_domain_index, "mod_nmoesi_store_finish");
-	
+
 	EV_MOD_NMOESI_NC_STORE = esim_register_event_with_name(mod_handler_nmoesi_nc_store,
 			mem_domain_index, "mod_nmoesi_nc_store");
 	EV_MOD_NMOESI_NC_STORE_LOCK = esim_register_event_with_name(mod_handler_nmoesi_nc_store,
@@ -337,7 +338,7 @@ void mem_system_dump_report(void)
 	f = file_open_for_write(mem_report_file_name);
 	if (!f)
 		return;
-	
+
 	/* Intro */
 	fprintf(f, "; Report for caches, TLBs, and main memory\n");
 	fprintf(f, ";    Accesses - Total number of accesses\n");
@@ -354,7 +355,89 @@ void mem_system_dump_report(void)
 	fprintf(f, ";    BlockingReads, BlockingWrites, BlockingNCWrites - Reads/writes coming from lower-level cache\n");
 	fprintf(f, ";    NonBlockingReads, NonBlockingWrites, NonBlockingNCWrites - Coming from upper-level cache\n");
 	fprintf(f, "\n\n");
-	
+
+	for (i = 0; i < list_count(mem_system->mod_list); i++)
+    {
+        mod = list_get(mem_system->mod_list, i);
+        /* Find L2 cache (assume last level) */
+        if (mod->kind == mod_kind_cache && mod->level == 2)
+        {
+            cache = mod->cache;
+            int i_set, i_way, z, i_high_mod, i_sharer;
+            enum cache_block_state_t state;
+            enum cache_block_state_t high_block_state;
+            int l2_dirty_blocks = 0;
+            struct dir_entry_t *dir_entry;
+            struct mod_t *high_mod;
+            unsigned int addr;
+            int high_set, high_way, high_state;
+            int high_find_dirty;
+
+            for (i_set = 0; i_set < cache->num_sets; i_set++)
+            {
+                for (i_way = 0; i_way < cache->assoc; i_way++)
+                {
+                    state = cache->sets[i_set].blocks[i_way].state;
+                    if (state != cache_block_invalid)
+                    {
+                        /* Dirty L2 block */
+                        if (state == cache_block_modified || state == cache_block_noncoherent)
+                        {
+                            l2_dirty_blocks++;
+                        }
+                        /* Block clean, but subblocks in L1 may dirty */
+                        else if (dir_entry_group_shared_or_owned(mod->dir, i_set, i_way))
+                        {
+                            high_find_dirty = 0;
+                            for (z = 0; z < dir->zsize; z++)
+                            {
+                                dir_entry = dir_entry_get(mod->dir, i_set, i_way, z);
+                                /* Someone owns this subblock. */
+                                if (DIR_ENTRY_VALID_OWNER(dir_entry))
+                                {
+                                    /* Get upper level cache module contains owner block. */
+                                    high_mod = list_get(mod->high_mod_list, dir_entry->owner);
+                                    addr = cache->sets[i_set].blocks[i_way].tag << cache->log_block_size;
+                                    /* Find the block from cache. */
+                                    cache_find_block(high_mod->cache, addr, &high_set, &high_way, &high_state);
+                                    high_block_state = (enum cache_block_state_t)high_state;
+                                    /* If dirty */
+                                    if (high_block_state == cache_block_modified || high_block_state == cache_block_noncoherent)
+                                    {
+                                        high_find_dirty = 1;
+                                    }
+                                }
+                                else if (dir_entry->num_sharers > 0)
+                                {
+                                    for (i_sharer = 0; i_sharer < mod->dir->num_nodes; i_sharer++)
+                                    {
+                                        if (dir_entry_is_sharer(mod->dir, i_set, i_way, z, i_sharer))
+                                        {
+                                            /* Same as ablve... */
+                                            high_mod = list_get(mod->high_mod_list, i_sharer);
+                                            addr = cache->sets[i_set].blocks[i_way].tag << cache->log_block_size;
+                                            cache_find_block(high_mod->cache, addr, &high_set, &high_way, &high_state);
+                                            high_block_state = (enum cache_block_state_t)high_state;
+                                            if (high_block_state == cache_block_modified || high_block_state == cache_block_noncoherent)
+                                            {
+                                                high_find_dirty = 1;
+                                            }
+                                        }
+                                        if (high_find_dirty) break; /* for (i_sharer in dir->nodes) */
+                                    }
+                                }
+                                if (high_find_dirty) break; /* for (z in dir->zsize) */
+                            }
+                            if (high_find_dirty) l2_dirty_blocks++;
+                        }
+                    }
+                } /* for (block in L2) */
+            }
+            fprintf(f, "L2 Dirty Blocks = %d\n\n", l2_dirty_blocks);
+        }
+    }
+
+
 	/* Report for each cache */
 	for (i = 0; i < list_count(mem_system->mod_list); i++)
 	{
@@ -381,7 +464,7 @@ void mem_system_dump_report(void)
 		fprintf(f, "HitRatio = %.4g\n", mod->accesses ?
 			(double) mod->hits / mod->accesses : 0.0);
 		fprintf(f, "Evictions = %lld\n", mod->evictions);
-		fprintf(f, "Retries = %lld\n", mod->read_retries + mod->write_retries + 
+		fprintf(f, "Retries = %lld\n", mod->read_retries + mod->write_retries +
 			mod->nc_write_retries);
 		fprintf(f, "\n");
 		fprintf(f, "Reads = %lld\n", mod->reads);
@@ -434,7 +517,7 @@ void mem_system_dump_report(void)
 		net = list_get(mem_system->net_list, i);
 		net_dump_report(net, f);
 	}
-	
+
 	/* Done */
 	fclose(f);
 }
