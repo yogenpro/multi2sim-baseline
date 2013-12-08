@@ -389,14 +389,15 @@ void mem_system_dump_report(void)
                         else if (dir_entry_group_shared_or_owned(mod->dir, i_set, i_way))
                         {
                             high_find_dirty = 0;
-                            for (z = 0; z < dir->zsize; z++)
+                            for (z = 0; z < mod->dir->zsize; z++)
                             {
                                 dir_entry = dir_entry_get(mod->dir, i_set, i_way, z);
                                 /* Someone owns this subblock. */
                                 if (DIR_ENTRY_VALID_OWNER(dir_entry))
                                 {
                                     /* Get upper level cache module contains owner block. */
-                                    high_mod = list_get(mod->high_mod_list, dir_entry->owner);
+                                    linked_list_goto(mod->high_mod_list, i_sharer);
+                                    high_mod = linked_list_get(mod->high_mod_list);
                                     addr = cache->sets[i_set].blocks[i_way].tag << cache->log_block_size;
                                     /* Find the block from cache. */
                                     cache_find_block(high_mod->cache, addr, &high_set, &high_way, &high_state);
@@ -414,7 +415,8 @@ void mem_system_dump_report(void)
                                         if (dir_entry_is_sharer(mod->dir, i_set, i_way, z, i_sharer))
                                         {
                                             /* Same as ablve... */
-                                            high_mod = list_get(mod->high_mod_list, i_sharer);
+                                            linked_list_goto(mod->high_mod_list, i_sharer);
+                                            high_mod = linked_list_get(mod->high_mod_list);
                                             addr = cache->sets[i_set].blocks[i_way].tag << cache->log_block_size;
                                             cache_find_block(high_mod->cache, addr, &high_set, &high_way, &high_state);
                                             high_block_state = (enum cache_block_state_t)high_state;
