@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="Debug" />
+	<File name="src\mem-system\mem-system.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="983" topLine="15" />
+		</Cursor>
+	</File>
+	<File name="src\visual\memory\mem-system.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="14282" topLine="38" />
+		</Cursor>
+	</File>
+	<File name="src\mem-system\module.h" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="3209" topLine="133" />
+		</Cursor>
+	</File>
+	<File name="src\mem-system\config.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="46436" topLine="1362" />
+		</Cursor>
+	</File>
+	<File name="src\mem-system\nmoesi-protocol.c" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="33613" topLine="1325" />
+		</Cursor>
+	</File>
+	<File name="runtime\opengl\linked-list.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="4321" topLine="218" />
+		</Cursor>
+	</File>
+	<File name="src\mem-system\directory.c" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="4980" topLine="168" />
+		</Cursor>
+	</File>
+	<File name="src\mem-system\directory.h" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1228" topLine="53" />
+		</Cursor>
+	</File>
+	<File name="src\mem-system\cache.c" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="5352" topLine="193" />
+		</Cursor>
+	</File>
+	<File name="src\mem-system\cache.h" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2280" topLine="67" />
+		</Cursor>
+	</File>
+	<File name="src\lib\util\linked-list.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1294" topLine="35" />
+		</Cursor>
+	</File>
+	<File name="src\mem-system\mod-stack.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1336" topLine="62" />
+		</Cursor>
+	</File>
+	<File name="src\lib\util\class.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1656" topLine="21" />
+		</Cursor>
+	</File>
+	<File name="runtime\glut\list.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2780" topLine="130" />
+		</Cursor>
+	</File>
+	<File name="src\mem-system\mem-system.c" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="19948" topLine="411" />
+		</Cursor>
+	</File>
+	<File name="src\lib\util\linked-list.h" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="866" topLine="114" />
+		</Cursor>
+	</File>
+	<File name="src\mem-system\module.c" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="0" topLine="106" />
+		</Cursor>
+	</File>
+</CodeBlocks_layout_file>

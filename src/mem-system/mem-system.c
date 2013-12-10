@@ -460,6 +460,33 @@ void mem_system_dump_report(void)
 		fprintf(f, "Ports = %d\n", mod->num_ports);
 		fprintf(f, "\n");
 
+        int i_set, i_way;
+        int n_block = 0, m_block = 0, o_block = 0, e_block = 0, s_block = 0, i_block = 0;
+        for(i_set = 0; i_set < cache->num_sets; ++i_set)
+        {
+            for(i_way = 0; i_way < cache->assoc; ++i_way)
+            {
+                switch(cache->sets[i_set].blocks[i_way].state)
+                {
+                    case cache_block_noncoherent: n_block++; break;
+                    case cache_block_modified: m_block++; break;
+                    case cache_block_owned: o_block++; break;
+                    case cache_block_exclusive: e_block++; break;
+                    case cache_block_shared: s_block++; break;
+                    case cache_block_invalid: i_block++; break;
+                    default: break;
+                }
+            }
+        }
+        fprintf(f, "\n");
+        fprintf(f, "NoncoherentBlocks = %d\n", n_block);
+        fprintf(f, "ModifiedBlocks = %d\n", m_block);
+        fprintf(f, "OwnedBlocks = %d\n", o_block);
+        fprintf(f, "ExclusiveBlocks = %d\n", e_block);
+        fprintf(f, "SharedBlocks = %d\n", s_block);
+        fprintf(f, "InvalidBlocks = %d\n", i_block);
+        fprintf(f, "\n");
+
 		/* Statistics */
 		fprintf(f, "Accesses = %lld\n", mod->accesses);
 		fprintf(f, "Hits = %lld\n", mod->hits);
